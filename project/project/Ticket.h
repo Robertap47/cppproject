@@ -25,3 +25,4 @@ public:
 	bool operator!() const;
 	Ticket& operator++();
 };
+
