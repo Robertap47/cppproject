@@ -59,7 +59,7 @@ void Event::setTime(const string& time) {
 }
 
 void Event::printDetails() const {
-	cout << "Event Name: " << name << "Event Date" << date << "Event time" << time;
+	cout << "Event Name: " << name << endl << "Event Date: " << date << endl  << "Event time: " << time;
 }
 void Event::updateDetails(const string& name, const string& date, const string& time) {
 	this->name = name;
@@ -103,8 +103,9 @@ void Event::postponeEvent(int hours, int minutes) {
 	newTime << setw(2) << setfill('0') << hh << ':' << setw(2) << setfill('0') << mm; //iomanip
 	time = newTime.str();
 	int year, month, day;
+	extractDate(year, month, day);
+	//cout << "Extract date: " << year << endl << month << endl << day; 
 	if (dayIncrement) {
-		extractDate(year, month, day);
 		day++;
 		if (day > 31) {
 			day = 1;
@@ -120,10 +121,12 @@ void Event::postponeEvent(int hours, int minutes) {
 	date = newDate.str();
 }
 ostream& operator<< (ostream& os, const Event& event) {
-	os << "Event Name: " << event.name << "Event Date" << event.date << "Event time" << event.time;
+	os << "Event Name: " << event.name << "Event Date: " << event.date << "Event time: " << event.time;
+	return os;
 }
  istream& operator>> (istream& is, Event& event) {
 	is >> event.name >> event.date >> event.time;
+	return is;
 }
  bool Event::operator< (const Event& other) {
 	 if (date < other.date)

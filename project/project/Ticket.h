@@ -9,6 +9,7 @@ private:
 	unsigned long ticketID;
 	string holderName;
 	static long nextTicketID; //static attribute to generate unique ID
+	string expireDate;
 
 public:
 	Ticket();
@@ -24,5 +25,9 @@ public:
 	friend istream& operator>> (istream& is, Ticket& ticket);
 	bool operator!() const;
 	Ticket& operator++();
+	bool isExpired(const string& currentDate) const ;
+	void setExpireDate(const string& expireDate);
+	string getExpireDate() const ;
+
 };
 
