@@ -2,9 +2,14 @@
 #include <string>
 #include "Ticket.h"
 #include "Event.h"
+#include "EventLocation.h"
+#include <vector>
 using namespace std;
 
 int main() {
+	EventLocation location1;
+	cout << "Enter new zones and seats per row (e.g., d e f 15 25 35 ): ";
+	cin >> location1;
 	string holderName;
 	cout << "enter the name of the ticket holder: ";
 	getline(cin,holderName);
@@ -64,6 +69,45 @@ int main() {
 	cout << "Postpone the event by 2 hours and 20 minutes: "<< endl;
 	newEvent.postponeEvent(2, 20);
 	newEvent.printDetails();
+	//crerea unei locatii de eveniment cu constructor implicit
+
+	EventLocation location( { 'a', 'b', 'c' }, { 10,15,20 }, 100 );
+	location.printLocationInfo();
+	cout << "Total Capacity: " << location.calculateTotalCapacity() << endl;
+	char zoneToCheck = 'b';
+	if (location.isZoneAvailable(zoneToCheck)) {
+		cout << "Zone " << zoneToCheck << " is available" << endl;
+	}
+	else {
+		cout << "Zone" << zoneToCheck << " is not available." << endl;
+
+	}
+	cout << "total location " << EventLocation::getTotalLocations() << endl;
+
+	//exemple de citire si scriere folosind operatorii >> si <<
+	cout << location1 << endl;
+
+	//crearea unei locatii de eveniment cu constructorul parametrizat
+	vector<char> zones = { 'd','e' }; 
+	vector<int> seatsPerRow = { 10,20,30 };
+	EventLocation location2(zones, seatsPerRow, 60);
+	cout << "total location " << EventLocation::getTotalLocations() << endl;
+	location2.printLocationInfo();
+	location2.addZone('f');
+	cout << "after adding a new zone " << endl;
+	location2.printLocationInfo();
+	//utilizarea operatorului [] 
+	try {
+		char zone = location2[0];
+		cout << "first zone: " << zone << endl;
+	}
+	catch (const out_of_range& e) {
+		cerr << "error " << e.what() << endl;
+	}
+
+	//exemplu utilizare operator +
+	EventLocation combinedLocation = location + location2;
+	cout << combinedLocation << endl;
 	
 	return 0;
 }
