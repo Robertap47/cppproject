@@ -7,6 +7,10 @@ Ticket::Ticket(const string& holderName) :holderName(holderName), ticketID(nextT
 {
 
 }
+Ticket::Ticket(unsigned long id, const string& name, bool valid,const string& expireDate):ticketID(id),holderName(name), isValid(valid),expireDate(expireDate) {
+	nextTicketID++;
+
+}
 Ticket::~Ticket() {
 
 }
@@ -60,6 +64,34 @@ void Ticket::setExpireDate(const string& expireDate) {
 	this->expireDate = expireDate;
 
 }
+
+void Ticket::saveToFile(ostream& out) const {
+	out.write(reinterpret_cast<const char*> (&ticketID), sizeof(ticketID));
+	size_t nameL = holderName.size();
+	out.write(reinterpret_cast<const char*> (&nameL), sizeof(nameL));
+	out.write(holderName.c_str(), nameL);
+	size_t dateL = expireDate.size();
+	out.write(reinterpret_cast<const char*> (&dateL), sizeof(dateL));
+	out.write(expireDate.c_str(), dateL);
+	out.write(reinterpret_cast<const char*> (&isValid), sizeof(isValid));
+}
+
+bool Ticket::loadFromFile(istream& in) {
+	if (!in.read(reinterpret_cast<char*> (&ticketID), sizeof(ticketID))) {
+		return false;
+	}
+	size_t nameL;
+	in.read(reinterpret_cast<char*> (&nameL), sizeof(nameL));
+	holderName.resize(nameL);
+	in.read(&holderName[0], nameL);
+	in.read(reinterpret_cast<char*> (&isValid), sizeof(isValid));
+	size_t dateL;
+	in.read(reinterpret_cast<char*> (&dateL), sizeof(dateL));
+	expireDate.resize(dateL);
+	in.read(&expireDate[0], dateL);
+	return true;
+}
+
 
 string Ticket::getExpireDate()const {
 	return expireDate;

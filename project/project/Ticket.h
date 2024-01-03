@@ -14,6 +14,7 @@ private:
 public:
 	Ticket();
 	Ticket(const string& holderName);
+	Ticket(unsigned long id, const string& name, bool valid,const string& expireDate);
 	~Ticket();
 	unsigned long getTicketID() const;
 	string getHolderName() const;
@@ -28,6 +29,9 @@ public:
 	bool isExpired(const string& currentDate) const ;
 	void setExpireDate(const string& expireDate);
 	string getExpireDate() const ;
-
+	void saveToFile(ostream& out) const;
+	bool loadFromFile(istream& in);
+	
+	
 };
 
