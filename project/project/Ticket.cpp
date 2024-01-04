@@ -65,44 +65,43 @@ void Ticket::setExpireDate(const string& expireDate) {
 
 }
 
-void Ticket::saveToFile(ostream& out) const {
-	out.write(reinterpret_cast<const char*> (&ticketID), sizeof(ticketID));
-	size_t nameL = holderName.size();
-	out.write(reinterpret_cast<const char*> (&nameL), sizeof(nameL));
-	out.write(holderName.c_str(), nameL);
-	size_t dateL = expireDate.size();
-	out.write(reinterpret_cast<const char*> (&dateL), sizeof(dateL));
-	out.write(expireDate.c_str(), dateL);
-	out.write(reinterpret_cast<const char*> (&isValid), sizeof(isValid));
-	if (out.fail()) {
-		cerr << "Error writing ticket, data to file. ";
-	}
+void Ticket::saveToFile(FILE* file) const {
+    fwrite(&ticketID, sizeof(ticketID), 1, file);
+
+    size_t nameLength = holderName.size();
+    fwrite(&nameLength, sizeof(nameLength), 1, file);
+    fwrite(holderName.c_str(), sizeof(char), nameLength, file);
+
+    size_t dateLength = expireDate.size();
+    fwrite(&dateLength, sizeof(dateLength), 1, file);
+    fwrite(expireDate.c_str(), sizeof(char), dateLength, file);
+
+    fwrite(&isValid, sizeof(isValid), 1, file);
 }
+bool Ticket::loadFromFile(FILE* file) {
+    if (fread(&ticketID, sizeof(ticketID), 1, file) != 1) {
+        return false;
+    }
 
-bool Ticket::loadFromFile(istream& in) {
-	if (!in.read(reinterpret_cast<char*>(&ticketID), sizeof(ticketID))) {
-		return false;
-	}
+    size_t nameLength;
+    if (fread(&nameLength, sizeof(nameLength), 1, file) != 1) {
+        return false;
+    }
+    holderName.resize(nameLength);
+    fread(&holderName[0], sizeof(char), nameLength, file);
 
-	size_t nameLength;
-	if (!in.read(reinterpret_cast<char*>(&nameLength), sizeof(nameLength)) || nameLength > 1000) {
-		return false;
-	}
-	holderName.resize(nameLength);
-	in.read(&holderName[0], nameLength);
+    size_t dateLength;
+    if (fread(&dateLength, sizeof(dateLength), 1, file) != 1) {
+        return false;
+    }
+    expireDate.resize(dateLength);
+    fread(&expireDate[0], sizeof(char), dateLength, file);
 
-	if (!in.read(reinterpret_cast<char*>(&isValid), sizeof(isValid))) {
-		return false;
-	}
+    if (fread(&isValid, sizeof(isValid), 1, file) != 1) {
+        return false;
+    }
 
-	size_t dateLength;
-	if (!in.read(reinterpret_cast<char*>(&dateLength), sizeof(dateLength)) || dateLength > 100) {
-		return false;
-	}
-	expireDate.resize(dateLength);
-	in.read(&expireDate[0], dateLength);
-
-	return in.good();
+    return true;
 }
 
 string Ticket::getExpireDate()const {

@@ -29,8 +29,8 @@ public:
 	bool isExpired(const string& currentDate) const ;
 	void setExpireDate(const string& expireDate);
 	string getExpireDate() const ;
-	void saveToFile(ostream& out) const;
-	bool loadFromFile(istream& in);
+	void saveToFile(FILE* file) const;
+	bool loadFromFile(FILE* file);
 	
 	
 };

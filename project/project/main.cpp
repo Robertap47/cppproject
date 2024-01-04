@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -202,41 +203,38 @@ void viewEvents() {
 	cout << combinedLocation << endl;
 }
 void loadTickets(vector<Ticket>& tickets, const string& fileName) {
-	ifstream inFile(fileName, ios::binary);
-	if (!inFile) {
-		cerr << "Error opening file";
+	FILE* file = fopen(fileName.c_str(), "rb");
+	if (file == NULL) {
+		cerr << "Error opening file for reading: " << fileName << endl;
 		return;
 	}
-	cout << "Load tickets to file: " << fileName << endl;
+
 	Ticket ticket;
-	while (ticket.loadFromFile(inFile)) {
+	while (ticket.loadFromFile(file)) {
 		tickets.push_back(ticket);
 		cout << "TicketID: " << ticket.getTicketID() << ", Holder: " << ticket.getHolderName();
 		cout << ", Valid: " << (ticket.isExpired("2024-01-03") ? "Yes" : "No");
 		cout << ", Expire Date: " << ticket.getExpireDate() << endl;
 	}
-	//cout << "Tickets loaded successfully. Displaying tickets: " << endl;
-	inFile.close();
+
+	cout << "Tickets loaded successfully from " << fileName << endl;
+	fclose(file);
 }
 
 void saveTickets(const vector<Ticket>& tickets, const string& fileName) {
-	ofstream outFile(fileName, ios::binary|ios::app);
-	if (!outFile) {
-		cerr << "Error opening file";
+	FILE* file = fopen(fileName.c_str(), "wb");
+	if (file == NULL) {
+		cerr << "Error opening file for writing: " << fileName << endl;
 		return;
 	}
-	cout << "Saving tickets to file: " << fileName << endl;
+
 	for (const auto& ticket : tickets) {
-		ticket.saveToFile(outFile);
-
-	}
-	if (!outFile.fail()) {
-		cout << "Tickets saved sucessfully " << endl;
+		ticket.saveToFile(file);
 	}
 
-	outFile.close();
+	cout << "Tickets saved successfully to " << fileName << endl;
+	fclose(file);
 }
-
 
 void createTicket(vector<Ticket> &tickets) {
 	string holderName;
