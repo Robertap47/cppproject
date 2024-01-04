@@ -1,68 +1,74 @@
 #include "Ticket.h"
 long Ticket::nextTicketID = 1;
-Ticket::Ticket() :ticketID(nextTicketID++) {
 
-}
-Ticket::Ticket(const string& holderName) :holderName(holderName), ticketID(nextTicketID++)
-{
+Ticket::Ticket() : ticketID(nextTicketID++), isValid(true) {}
 
-}
-Ticket::Ticket(unsigned long id, const string& name, bool valid,const string& expireDate):ticketID(id),holderName(name), isValid(valid),expireDate(expireDate) {
-	nextTicketID++;
+Ticket::Ticket(const string& holderName, bool isValid) : holderName(holderName), ticketID(nextTicketID++), isValid(isValid) {}
 
+Ticket::Ticket(unsigned long id, const string& name, bool valid, const string& expireDate) : ticketID(id), holderName(name), isValid(valid), expireDate(expireDate) {
+    nextTicketID++;
 }
-Ticket::~Ticket() {
 
-}
+Ticket::~Ticket() {}
+
 unsigned long Ticket::getTicketID() const {
-	return ticketID;
+    return ticketID;
 }
 
 string Ticket::getHolderName() const {
-	return holderName;
+    return holderName;
 }
 
-void Ticket::setHolderName(const string& name)  {
-	holderName = name;
+void Ticket::setHolderName(const string& name) {
+    holderName = name;
+}
+
+bool Ticket::getIsValid() const {
+    return isValid;
+}
+
+void Ticket::setIsValid(bool valid) {
+    isValid = valid;
 }
 
 void Ticket::printTicket() const {
-	cout << "TicketID: " << ticketID << endl << "holder: " << holderName << endl << "expire date: " << expireDate << endl;
-
+    cout << "TicketID: " << ticketID << endl << "Holder: " << holderName << endl << "Expire date: " << expireDate << endl;
 }
 
 void Ticket::invalidateTicket() {
-	isValid = false;
+    isValid = false;
 }
 
 Ticket& Ticket::operator++() {
-	++ticketID;
-	return *this;
+    ++ticketID;
+    return *this;
 }
 
 bool Ticket::operator!() const {
-	return !isValid;
-}
-unsigned long Ticket::generateNextTicketID() {
-	return nextTicketID++;
-}
-ostream& operator << (ostream& os, const Ticket& ticket){
-	os <<  "TicketID: " << ticket.ticketID << ",holder: " << ticket.holderName << "expire date: " << ticket.expireDate << endl;
-	return os;
-}
-istream& operator>> (istream& is, Ticket& ticket) {
-	is >> ticket.holderName;
-	ticket.ticketID = Ticket::generateNextTicketID();
-	return is;
+    return !isValid;
 }
 
-bool Ticket::isExpired(const string& currentDate)const {
-	return currentDate > expireDate;
+unsigned long Ticket::generateNextTicketID() {
+    return nextTicketID++;
+}
+
+ostream& operator<<(ostream& os, const Ticket& ticket) {
+    os << "TicketID: " << ticket.ticketID << ", Holder: " << ticket.holderName << ", Expire date: " << ticket.expireDate << endl;
+    return os;
+}
+
+istream& operator>>(istream& is, Ticket& ticket) {
+    is >> ticket.holderName;
+    ticket.ticketID = Ticket::generateNextTicketID();
+    return is;
+}
+
+bool Ticket::isExpired(const string& currentDate) const {
+    return currentDate > expireDate;
 }
 
 void Ticket::setExpireDate(const string& expireDate) {
-	this->expireDate = expireDate;
-
+    this->expireDate = expireDate;
 }
 
 void Ticket::saveToFile(FILE* file) const {
@@ -78,6 +84,7 @@ void Ticket::saveToFile(FILE* file) const {
 
     fwrite(&isValid, sizeof(isValid), 1, file);
 }
+
 bool Ticket::loadFromFile(FILE* file) {
     if (fread(&ticketID, sizeof(ticketID), 1, file) != 1) {
         return false;
@@ -104,7 +111,7 @@ bool Ticket::loadFromFile(FILE* file) {
     return true;
 }
 
-string Ticket::getExpireDate()const {
-	return expireDate;
+string Ticket::getExpireDate() const {
+    return expireDate;
 }
 
