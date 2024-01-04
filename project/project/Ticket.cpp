@@ -74,24 +74,36 @@ void Ticket::saveToFile(ostream& out) const {
 	out.write(reinterpret_cast<const char*> (&dateL), sizeof(dateL));
 	out.write(expireDate.c_str(), dateL);
 	out.write(reinterpret_cast<const char*> (&isValid), sizeof(isValid));
+	if (out.fail()) {
+		cerr << "Error writing ticket, data to file. ";
+	}
 }
 
 bool Ticket::loadFromFile(istream& in) {
-	if (!in.read(reinterpret_cast<char*> (&ticketID), sizeof(ticketID))) {
+	if (!in.read(reinterpret_cast<char*>(&ticketID), sizeof(ticketID))) {
 		return false;
 	}
-	size_t nameL;
-	in.read(reinterpret_cast<char*> (&nameL), sizeof(nameL));
-	holderName.resize(nameL);
-	in.read(&holderName[0], nameL);
-	in.read(reinterpret_cast<char*> (&isValid), sizeof(isValid));
-	size_t dateL;
-	in.read(reinterpret_cast<char*> (&dateL), sizeof(dateL));
-	expireDate.resize(dateL);
-	in.read(&expireDate[0], dateL);
-	return true;
-}
 
+	size_t nameLength;
+	if (!in.read(reinterpret_cast<char*>(&nameLength), sizeof(nameLength)) || nameLength > 1000) {
+		return false;
+	}
+	holderName.resize(nameLength);
+	in.read(&holderName[0], nameLength);
+
+	if (!in.read(reinterpret_cast<char*>(&isValid), sizeof(isValid))) {
+		return false;
+	}
+
+	size_t dateLength;
+	if (!in.read(reinterpret_cast<char*>(&dateLength), sizeof(dateLength)) || dateLength > 100) {
+		return false;
+	}
+	expireDate.resize(dateLength);
+	in.read(&expireDate[0], dateLength);
+
+	return in.good();
+}
 
 string Ticket::getExpireDate()const {
 	return expireDate;

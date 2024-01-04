@@ -8,6 +8,7 @@
 #include <vector>
 #include "ConcertEvent.h"
 using namespace std;
+vector<Ticket> tickets;
 /*
 int main() {
 	EventLocation location1;
@@ -200,8 +201,44 @@ void viewEvents() {
 	EventLocation combinedLocation = location + location2;
 	cout << combinedLocation << endl;
 }
+void loadTickets(vector<Ticket>& tickets, const string& fileName) {
+	ifstream inFile(fileName, ios::binary);
+	if (!inFile) {
+		cerr << "Error opening file";
+		return;
+	}
+	cout << "Load tickets to file: " << fileName << endl;
+	Ticket ticket;
+	while (ticket.loadFromFile(inFile)) {
+		tickets.push_back(ticket);
+		cout << "TicketID: " << ticket.getTicketID() << ", Holder: " << ticket.getHolderName();
+		cout << ", Valid: " << (ticket.isExpired("2024-01-03") ? "Yes" : "No");
+		cout << ", Expire Date: " << ticket.getExpireDate() << endl;
+	}
+	//cout << "Tickets loaded successfully. Displaying tickets: " << endl;
+	inFile.close();
+}
 
-void createTicket() {
+void saveTickets(const vector<Ticket>& tickets, const string& fileName) {
+	ofstream outFile(fileName, ios::binary|ios::app);
+	if (!outFile) {
+		cerr << "Error opening file";
+		return;
+	}
+	cout << "Saving tickets to file: " << fileName << endl;
+	for (const auto& ticket : tickets) {
+		ticket.saveToFile(outFile);
+
+	}
+	if (!outFile.fail()) {
+		cout << "Tickets saved sucessfully " << endl;
+	}
+
+	outFile.close();
+}
+
+
+void createTicket(vector<Ticket> &tickets) {
 	string holderName;
 	cout << "enter the name of the ticket holder: ";
 	cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -210,6 +247,7 @@ void createTicket() {
 	myTicket.setExpireDate("2023-12-31");
 	myTicket.printTicket();
 	cout << endl;
+	tickets.push_back(myTicket);
 	string currentDate = "2023-12-27";
 	if (myTicket.isExpired(currentDate))
 	{
@@ -237,21 +275,24 @@ void createTicket() {
 	}
 	else
 		cout << "\nticket is valid ";
+	//saveTickets(tickets, "tickets.bin");
+	//cout << "Ticket saved to file. " << endl;
+	//loadTickets(tickets, "tickets.bin");
 }
 
-void launchMenu() {
+bool launchMenu() {
 	int choice;
 	while (true) {
-		cout << "\nmenu\n";
+		cout << "\nMain menu\n";
 		cout << "1.Ticket operations\n";
-		cout << "2.Events operations\n";
-		cout << "3.Manage concert events\n";
+		cout << "2.General events operations\n";
+		cout << "3.Concert event management\n";
 		cout << "4.Exit\n";
 		cout << "Enter your choice: ";
 		cin >> choice;
 		switch (choice) {
 		case 1:
-			createTicket();
+			createTicket(tickets);
 			break;
 		case 2:
 			viewEvents();
@@ -261,7 +302,7 @@ void launchMenu() {
 			break;
 		case 4:
 			cout << "Exiting program\n";
-			return;
+			return true;
 		default:
 			cout << "Invalid choice, please try again\n";
 
@@ -308,52 +349,24 @@ void processFileData(const string& filename) {
 		}
 		file.close();
 }
-void saveTickets(const vector<Ticket> &tickets, const string &fileName) {
-	ofstream outFile(fileName, ios::binary);
-	if (!outFile) {
-		cerr << "Error opening file";
-		return;
-	}
-	cout << "Saving tickets to file: " << fileName << endl;
-	for (const auto& ticket:tickets) {
-		ticket.saveToFile(outFile);
-	}
-	cout << "Tickets saved sucessfully " << endl;
-	outFile.close();
-}
 
-void loadTickets(vector<Ticket>& tickets, const string& fileName) {
-	ifstream inFile(fileName, ios::binary);
-	if (!inFile) {
-		cerr << "Error opening file";
-		return;
-	}
-	cout << "Load tickets to file: " << fileName << endl;
-	Ticket ticket;
-	while (ticket.loadFromFile(inFile)) {
-		tickets.push_back(ticket);
-	}
-	cout << "Tickets loaded successfully. Displaying tickets: " << endl;
-	for (const auto& l : tickets)
-	{
-		l.printTicket();
-	}
-	inFile.close();
-}
+
+
 
 
 int main(int argc, char* argv[])
 {
-	vector<Ticket> tickets;
+
+	
 	loadTickets(tickets, "tickets.bin");
 	if (argc > 1) {
 		string filename = argv[1];
 		processFileData(filename);
 	}
 	else
-		launchMenu();
-	
-	
+		if (!launchMenu()) {
+			saveTickets(tickets, "tickets.bin");
+		}
 	saveTickets(tickets, "tickets.bin");
 	return 0;
 }
