@@ -235,7 +235,7 @@ void viewAllLocations(const vector<EventLocation>& locations) {
 	}
 }
 
-void inputLocationData(EventLocation& location) {
+void addNewLocation(vector<EventLocation>& locations) {
 	EventLocation location1;
 	cout << "Add a New Event Location\n";
 	cout << "Location1 data:\n" << location1 << endl;
